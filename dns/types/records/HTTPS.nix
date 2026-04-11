@@ -1,3 +1,5 @@
-args: import ./SVCB.nix args // {
+args:
+import ./SVCB.nix args
+// {
   rtype = "HTTPS";
 }

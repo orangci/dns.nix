@@ -22,6 +22,6 @@ in
       description = "A <domain-name> which points to some location in the domain name space";
     };
   };
-  dataToString = {ptrdname, ...}: "${ptrdname}";
+  dataToString = { ptrdname, ... }: "${ptrdname}";
   fromString = ptrdname: { inherit ptrdname; };
 }

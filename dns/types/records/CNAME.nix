@@ -22,6 +22,6 @@ in
       description = "A <domain-name> which specifies the canonical or primary name for the owner. The owner name is an alias";
     };
   };
-  dataToString = {cname, ...}: "${cname}";
+  dataToString = { cname, ... }: "${cname}";
   fromString = cname: { inherit cname; };
 }

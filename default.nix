@@ -23,7 +23,8 @@ rec {
       ;
 
     toString = name: zone: builtins.toString (dns.evalZone name zone);
-  } // dns.combinators;
+  }
+  // dns.combinators;
 
   util.writeZone = import ./util/writeZone.nix {
     inherit (lib) evalZone;

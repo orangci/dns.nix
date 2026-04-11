@@ -16,6 +16,6 @@ in
       description = "A <domain-name> which provides redirection from a part of the DNS name tree to another part of the DNS name tree";
     };
   };
-  dataToString = {dname, ...}: "${dname}";
+  dataToString = { dname, ... }: "${dname}";
   fromString = dname: { inherit dname; };
 }

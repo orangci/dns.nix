@@ -9,19 +9,25 @@
 
 let
   inherit (builtins) filter removeAttrs;
-  inherit (lib) concatMapStringsSep concatStringsSep mapAttrs
-                     mapAttrsToList optionalString trim;
+  inherit (lib)
+    concatMapStringsSep
+    concatStringsSep
+    mapAttrs
+    mapAttrsToList
+    optionalString
+    trim
+    ;
   inherit (lib) mkOption literalExample types;
 
   inherit (import ./record.nix { inherit lib; }) recordType writeRecord;
 
   rsubtypes = import ./records { inherit lib; };
-  rsubtypes' = removeAttrs rsubtypes ["SOA"];
+  rsubtypes' = removeAttrs rsubtypes [ "SOA" ];
 
   subzoneOptions = {
     subdomains = mkOption {
       type = types.attrsOf subzone;
-      default = {};
+      default = { };
       example = {
         www = {
           A = [ { address = "1.1.1.1"; } ];
@@ -32,78 +38,91 @@ let
       };
       description = "Records for subdomains of the domain";
     };
-  } //
-    mapAttrs (n: t: mkOption {
+  }
+  // mapAttrs (
+    n: t:
+    mkOption {
       type = types.listOf (recordType t);
-      default = [];
+      default = [ ];
       # example = [ t.example ];  # TODO: any way to auto-generate an example for submodule?
       description = "List of ${n} records for this zone/subzone";
-    }) rsubtypes';
+    }
+  ) rsubtypes';
 
   subzone = types.submodule {
     options = subzoneOptions;
   };
 
-  writeSubzone = name: zone:
+  writeSubzone =
+    name: zone:
     let
-      groupToString = pseudo: subt:
-        concatMapStringsSep "\n" (writeRecord name subt) zone."${pseudo}";
+      groupToString = pseudo: subt: concatMapStringsSep "\n" (writeRecord name subt) zone."${pseudo}";
       groups = mapAttrsToList groupToString rsubtypes';
       groups' = filter (s: s != "") groups;
 
       writeSubzone' = subname: writeSubzone "${subname}.${name}";
       sub = concatStringsSep "\n\n" (mapAttrsToList writeSubzone' zone.subdomains);
     in
-      concatStringsSep "\n\n" groups'
-      + optionalString (sub != "") ("\n\n" + trim sub);
-  zone = types.submodule ({ name, ... }: {
-    options = {
-      useOrigin = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether to use $ORIGIN and unqualified name or fqdn when exporting the zone.";
+    concatStringsSep "\n\n" groups' + optionalString (sub != "") ("\n\n" + trim sub);
+  zone = types.submodule (
+    { name, ... }:
+    {
+      options = {
+        useOrigin = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether to use $ORIGIN and unqualified name or fqdn when exporting the zone.";
+        };
+
+        TTL = mkOption {
+          type = types.ints.unsigned;
+          default = 24 * 60 * 60;
+          example = literalExample "60 * 60";
+          description = "Default record caching duration. Sets the $TTL variable";
+        };
+        SOA = mkOption rec {
+          type = recordType rsubtypes.SOA;
+          example = {
+            ttl = 24 * 60 * 60;
+          }
+          // type.example;
+          description = "SOA record";
+        };
+        __toString = mkOption {
+          readOnly = true;
+          visible = false;
+        };
+      }
+      // subzoneOptions;
+
+      config = {
+        __toString =
+          zone@{
+            useOrigin,
+            TTL,
+            SOA,
+            ...
+          }:
+          if useOrigin then
+            ''
+              $ORIGIN ${name}.
+              $TTL ${toString TTL}
+
+              ${writeRecord "@" rsubtypes.SOA SOA}
+
+              ${writeSubzone "@" zone}
+            ''
+          else
+            ''
+              $TTL ${toString TTL}
+
+              ${writeRecord name rsubtypes.SOA SOA}
+
+              ${writeSubzone name zone}
+            '';
       };
-
-      TTL = mkOption {
-        type = types.ints.unsigned;
-        default = 24 * 60 * 60;
-        example = literalExample "60 * 60";
-        description = "Default record caching duration. Sets the $TTL variable";
-      };
-      SOA = mkOption rec {
-        type = recordType rsubtypes.SOA;
-        example = {
-          ttl = 24 * 60 * 60;
-        } // type.example;
-        description = "SOA record";
-      };
-      __toString = mkOption {
-        readOnly = true;
-        visible = false;
-      };
-    } // subzoneOptions;
-
-    config = {
-      __toString = zone@{ useOrigin, TTL, SOA, ... }:
-        if useOrigin then
-          ''
-            $ORIGIN ${name}.
-            $TTL ${toString TTL}
-
-            ${writeRecord "@" rsubtypes.SOA SOA}
-
-            ${writeSubzone "@" zone}
-          ''
-	      else
-          ''
-            $TTL ${toString TTL}
-
-            ${writeRecord name rsubtypes.SOA SOA}
-
-            ${writeSubzone name zone}
-          '';
-    };
-  });
+    }
+  );
 
 in
 

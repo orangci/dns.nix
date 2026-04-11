@@ -26,8 +26,11 @@ rec {
     };
     h = mkOption {
       type = types.listOf types.str;
-      default = [];
-      example = ["sha1" "sha256"];
+      default = [ ];
+      example = [
+        "sha1"
+        "sha256"
+      ];
       description = "Acceptable hash algorithms. Empty means all of them";
       apply = lib.concatStringsSep ":";
     };
@@ -49,30 +52,44 @@ rec {
       description = "Public-key data (base64)";
     };
     s = mkOption {
-      type = types.listOf (types.enum ["*" "email"]);
-      default = ["*"];
-      example = ["email"];
+      type = types.listOf (
+        types.enum [
+          "*"
+          "email"
+        ]
+      );
+      default = [ "*" ];
+      example = [ "email" ];
       description = "Service Type";
       apply = lib.concatStringsSep ":";
     };
     t = mkOption {
-      type = types.listOf (types.enum ["y" "s"]);
-      default = [];
-      example = ["y"];
+      type = types.listOf (
+        types.enum [
+          "y"
+          "s"
+        ]
+      );
+      default = [ ];
+      example = [ "y" ];
       description = "Flags";
       apply = lib.concatStringsSep ":";
     };
   };
-  dataToString = data:
+  dataToString =
+    data:
     let
-      items = ["v=DKIM1"] ++ lib.pipe data [
-        (builtins.intersectAttrs options)  # remove garbage list `_module`
+      items = [
+        "v=DKIM1"
+      ]
+      ++ lib.pipe data [
+        (builtins.intersectAttrs options) # remove garbage list `_module`
         (lib.filterAttrs (_k: v: v != null && v != ""))
         (lib.filterAttrs (k: _v: k != "selector"))
         (lib.mapAttrsToList (k: v: "${k}=${v}"))
       ];
       result = lib.concatStringsSep "; " items + ";";
-    in dns.util.writeCharacterString result;
-  nameFixup = name: self:
-    "${self.selector}._domainkey.${name}";
+    in
+    dns.util.writeCharacterString result;
+  nameFixup = name: self: "${self.selector}._domainkey.${name}";
 }

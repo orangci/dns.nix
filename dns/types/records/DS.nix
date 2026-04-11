@@ -12,17 +12,19 @@ let
   dnssecOptions = import ./dnssec.nix { inherit lib; };
   inherit (dnssecOptions) mkRegisteredNumberOption mkDNSSECAlgorithmOption;
 
-  mkDSDigestTypeOption = { ... }@args: mkRegisteredNumberOption {
-    registryName = "Delegation Signer (DS) Resource Record (RR) Type Digest Algorithms";
-    numberType = types.ints.u8;
-    # These mnemonics are unofficial, unlike the DNSSEC algorithm ones.
-    mnemonics = {
-      "sha-1" = 1;
-      "sha-256" = 2;
-      "gost" = 3;
-      "sha-384" = 4;
+  mkDSDigestTypeOption =
+    { ... }@args:
+    mkRegisteredNumberOption {
+      registryName = "Delegation Signer (DS) Resource Record (RR) Type Digest Algorithms";
+      numberType = types.ints.u8;
+      # These mnemonics are unofficial, unlike the DNSSEC algorithm ones.
+      mnemonics = {
+        "sha-1" = 1;
+        "sha-256" = 2;
+        "gost" = 3;
+        "sha-384" = 4;
+      };
     };
-  };
 in
 {
   rtype = "DS";
@@ -42,6 +44,13 @@ in
       type = types.strMatching "[[:xdigit:]]+";
     };
   };
-  dataToString = { keyTag, algorithm, digestType, digest, ... }:
+  dataToString =
+    {
+      keyTag,
+      algorithm,
+      digestType,
+      digest,
+      ...
+    }:
     "${toString keyTag} ${toString algorithm} ${toString digestType} ${digest}";
 }

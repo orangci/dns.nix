@@ -49,8 +49,7 @@ in
       description = "The domain name of the target host";
     };
   };
-  dataToString = data: with data;
-    "${toString priority} ${toString weight} ${toString port} ${target}";
-  nameFixup = name: self:
-    "_${self.service}._${self.proto}.${name}";
+  dataToString =
+    data: with data; "${toString priority} ${toString weight} ${toString port} ${target}";
+  nameFixup = name: self: "_${self.service}._${self.proto}.${name}";
 }

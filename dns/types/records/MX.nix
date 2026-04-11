@@ -27,6 +27,5 @@ in
       description = "A <domain-name> which specifies a host willing to act as a mail exchange for the owner name";
     };
   };
-  dataToString = {preference, exchange, ...}:
-    "${toString preference} ${exchange}";
+  dataToString = { preference, exchange, ... }: "${toString preference} ${exchange}";
 }

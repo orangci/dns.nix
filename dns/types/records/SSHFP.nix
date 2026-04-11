@@ -35,6 +35,12 @@ in
       type = types.str;
     };
   };
-  dataToString = { algorithm, fingerprintType, fingerprint, ... }:
+  dataToString =
+    {
+      algorithm,
+      fingerprintType,
+      fingerprint,
+      ...
+    }:
     "${toString algorithm} ${toString fingerprintType} ${fingerprint}";
 }

@@ -44,6 +44,13 @@ in
       type = types.str;
     };
   };
-  dataToString = { certUsage, selector, matchingType, certificate, ... }:
+  dataToString =
+    {
+      certUsage,
+      selector,
+      matchingType,
+      certificate,
+      ...
+    }:
     "${toString certUsage} ${toString selector} ${toString matchingType} ${certificate}";
 }

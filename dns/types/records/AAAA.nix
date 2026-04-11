@@ -20,6 +20,6 @@ in
       description = "IPv6 address of the host";
     };
   };
-  dataToString = {address, ...}: address;
+  dataToString = { address, ... }: address;
   fromString = address: { inherit address; };
 }

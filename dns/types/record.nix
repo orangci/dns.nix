@@ -8,9 +8,16 @@
 { lib }:
 
 let
-  inherit (lib) hasSuffix isString mkOption removeSuffix types;
+  inherit (lib)
+    hasSuffix
+    isString
+    mkOption
+    removeSuffix
+    types
+    ;
 
-  recordType = rsubt:
+  recordType =
+    rsubt:
     let
       submodule = types.submodule {
         options = {
@@ -21,33 +28,47 @@ let
             description = "Resource record class. Only IN is supported";
           };
           ttl = mkOption {
-            type = types.nullOr types.ints.unsigned;  # TODO: u32
+            type = types.nullOr types.ints.unsigned; # TODO: u32
             default = null;
             example = 300;
             description = "Record caching duration (in seconds)";
           };
-        } // rsubt.options;
+        }
+        // rsubt.options;
       };
     in
-      (if rsubt ? fromString then types.coercedTo types.str rsubt.fromString else lib.id) submodule;
+    (if rsubt ? fromString then types.coercedTo types.str rsubt.fromString else lib.id) submodule;
 
   # name == "@" : use unqualified domain name
-  writeRecord = name: rsubt: data:
+  writeRecord =
+    name: rsubt: data:
     let
-      name' = let fname = rsubt.nameFixup or (n: _: n) name data; in
-        if name == "@" then name
-        else if (hasSuffix ".@" name) then removeSuffix ".@" fname
-        else "${fname}.";
+      name' =
+        let
+          fname = rsubt.nameFixup or (n: _: n) name data;
+        in
+        if name == "@" then
+          name
+        else if (hasSuffix ".@" name) then
+          removeSuffix ".@" fname
+        else
+          "${fname}.";
       rtype = rsubt.rtype;
-    in lib.concatStringsSep " " (with data; [
+    in
+    lib.concatStringsSep " " (
+      with data;
+      [
         name'
-      ] ++ lib.optionals (ttl != null) [
+      ]
+      ++ lib.optionals (ttl != null) [
         (toString ttl)
-      ] ++ [
+      ]
+      ++ [
         class
         rtype
         (rsubt.dataToString data)
-      ]);
+      ]
+    );
 
 in
 

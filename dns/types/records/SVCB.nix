@@ -14,21 +14,23 @@ let
     types
     ;
 
-  mkSvcParams = params: concatStringsSep " " (
-    filter (s: s != "") (
-      mapAttrsToList (
-        name: value:
-        if value == true then
-          name
-        else if isList value then
-          "${name}=${concatStringsSep "," value}"
-        else if isInt value then
-          "${name}=${builtins.toString value}"
-        else
-          ""
-      ) params
-    )
-  );
+  mkSvcParams =
+    params:
+    concatStringsSep " " (
+      filter (s: s != "") (
+        mapAttrsToList (
+          name: value:
+          if value == true then
+            name
+          else if isList value then
+            "${name}=${concatStringsSep "," value}"
+          else if isInt value then
+            "${name}=${builtins.toString value}"
+          else
+            ""
+        ) params
+      )
+    );
 in
 {
   rtype = "SVCB";
@@ -76,18 +78,30 @@ in
       default = null;
     };
   };
-  dataToString = { svcPriority, targetName, mandatory ? null, alpn ? null, no-default-alpn ? null, port ? null, ipv4hint ? null, ipv6hint ? null, ech ? null, ... }:
-"${toString svcPriority} ${targetName} ${
-  mkSvcParams {
-    inherit
-      alpn
-      ech
-      ipv4hint
-      ipv6hint
-      mandatory
-      no-default-alpn
-      port
-      ;
-  }
-}";
+  dataToString =
+    {
+      svcPriority,
+      targetName,
+      mandatory ? null,
+      alpn ? null,
+      no-default-alpn ? null,
+      port ? null,
+      ipv4hint ? null,
+      ipv6hint ? null,
+      ech ? null,
+      ...
+    }:
+    "${toString svcPriority} ${targetName} ${
+      mkSvcParams {
+        inherit
+          alpn
+          ech
+          ipv4hint
+          ipv6hint
+          mandatory
+          no-default-alpn
+          port
+          ;
+      }
+    }";
 }
