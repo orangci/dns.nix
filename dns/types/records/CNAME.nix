@@ -9,7 +9,7 @@
 { lib }:
 
 let
-  inherit (lib) dns mkOption;
+  inherit (lib) dns mkOption types;
 
 in
 
@@ -20,6 +20,11 @@ in
       type = dns.types.domain-name;
       example = "www.test.com";
       description = "A <domain-name> which specifies the canonical or primary name for the owner. The owner name is an alias";
+    };
+    cloudflareProxy = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether this record should be proxied by Cloudflare";
     };
   };
   dataToString = { cname, ... }: "${cname}";

@@ -106,6 +106,7 @@ let
       ];
 
       foo.subdomains.www.CNAME = [ "foo.test.com." ];
+      proxied.CNAME = [ (cloudflareProxy (cname "foo.test.com.")) ];
     };
   };
 in

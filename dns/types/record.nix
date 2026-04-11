@@ -54,21 +54,24 @@ let
         else
           "${fname}.";
       rtype = rsubt.rtype;
+      base =
+        with data;
+        [
+          name'
+        ]
+        ++ lib.optionals (ttl != null) [
+          (toString ttl)
+        ]
+        ++ [
+          class
+          rtype
+          (rsubt.dataToString data)
+        ];
+
+      cfComment =
+        if (data ? cloudflareProxy && data.cloudflareProxy) then "; cf_tags=cf-proxied:true" else "";
     in
-    lib.concatStringsSep " " (
-      with data;
-      [
-        name'
-      ]
-      ++ lib.optionals (ttl != null) [
-        (toString ttl)
-      ]
-      ++ [
-        class
-        rtype
-        (rsubt.dataToString data)
-      ]
-    );
+    lib.concatStringsSep " " base + (if cfComment != "" then " " + cfComment else "");
 
 in
 

@@ -57,6 +57,8 @@ with dns.lib.combinators; {
       "ns1.another.com."
       "ns2.another.com."
     ];
+
+    proxied.CNAME = [ (cloudflareProxy (cname "example.com.")) ]; # CNAME record proxied by Cloudflare
   };
 }
 ```

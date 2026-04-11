@@ -19,6 +19,11 @@ in
       example = "26.3.0.103";
       description = "IP address of the host";
     };
+    cloudflareProxy = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether this record should be proxied by Cloudflare";
+    };
   };
   dataToString = { address, ... }: address;
   fromString = address: { inherit address; };

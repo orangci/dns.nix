@@ -19,6 +19,11 @@ in
       example = "4321:0:1:2:3:4:567:89ab";
       description = "IPv6 address of the host";
     };
+    cloudflareProxy = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether this record should be proxied by Cloudflare";
+    };
   };
   dataToString = { address, ... }: address;
   fromString = address: { inherit address; };

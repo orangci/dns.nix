@@ -33,6 +33,8 @@ rec {
   # Templates/shortcuts
   #
 
+  cloudflareProxy = record: record // { cloudflareProxy = true; };
+
   host =
     ipv4: ipv6:
     lib.optionalAttrs (ipv4 != null) { A = [ ipv4 ]; }
